@@ -263,7 +263,7 @@ function update(){
         });
     }
     if(movingcounter>=countermax){
-        if(colapse) window.location.href = window.location.href.replace("index.html",`pages/${colapse}.html`);
+        if(colapse) window.location.href = window.location.href + `pages/${colapse}.html`;
         movingcounter=0;
     }
     var projector = new THREE.Projector();
