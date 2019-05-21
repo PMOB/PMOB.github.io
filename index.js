@@ -1,5 +1,6 @@
 let width;
 let height;
+let r;
 var scene;
 var camera;
 var renderer;
@@ -7,23 +8,25 @@ var controls;
 var cubelist = [];
 var movingon=0
 // FIXME 変数名をどうにかしろ
-var movingcounter=60;
+var moving_counter=60;
 var centering;
 var defColor=0;
 let colapse;
-const countermax=200;
-let r;
+const counter_max=200;
+const light_color = 0xFFFFFF;
+// const cube_default_color = 0xFF8000;
+const cube_default_color = 0xFF8000;
+const cube_mouseon_color = 0xBF4040;
 
-// FIXME
-// 色
-// スマホの時とか小さい画面のとき横が見切れるんじゃないか
+// FIXME スマホの時のPMOBがちっちゃくなる現象タスケテ
+
+const camera_lights = [
+    [0, 1000, 0], [500, 1000, 1000], [-500, 1000, -1000], [0, 1000, 500]
+];
 
 // リンクページ
 const content = {
-    "P":"Programming",
-    "M":"Mathematics",
-    "O":"Organization",
-    "B":"Belong"
+    "P":"Programming", "M":"Mathematics", "O":"Organization", "B":"Belong"
 };
 
 const P=[
@@ -105,8 +108,6 @@ const Pmob={"P":P,"M":M,"O":O,"B":B};
 function windSize(){
     height = document.documentElement.clientHeight-50;
     width = document.documentElement.clientWidth-50;
-    // height = window.innerHeight-50;
-    // width = window.innerWidth-50;
 }
 
 
@@ -114,18 +115,18 @@ function windSize(){
 function init(){
     windSize();
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(100, width / height, 1, 1000);
+    camera = new THREE.PerspectiveCamera(110, width / height, 1, 1000);
     controls = new THREE.OrbitControls(camera);
     controls.autoRotate = false;
     renderer = createRenderer();
     var now_total_wid = 0;
     var total_wid = -2;
-    r = (width+50)/500;
+    r = (width+50)/300;
 
     // 文字横全長
     Object.entries(Pmob).forEach((word)=>{
         total_wid += Math.max.apply([],word[1].map((array)=>{
-            return array[0]
+            return array[0];
         }))+2;
     });
     centering = total_wid/2;
@@ -140,17 +141,15 @@ function init(){
         });
         id+=1;
         now_total_wid += Math.max.apply([],word[1].map((array)=>{
-            return array[0]
+            return array[0];
         }))+2;
     });
 
-    scene.add(createLight(0xFFFFFF, 0, 1000, 0));
-    scene.add(createLight(0xFFFFFF, 500, 1000, 1000));
-    scene.add(createLight(0xFFFFFF, -500, 1000, -1000));
-    scene.add(createLight(0xFFFFFF, 0, 1000, 500));
-    camera.position.x = 0;
-    camera.position.y = 0;
-    camera.position.z = 50;
+    camera_lights.forEach((light)=>{
+        scene.add(createLight(light_color, light[0], light[1], light[2]));
+    });
+
+    camera.position.set(0, 0, 50);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     update();
 }
@@ -161,7 +160,7 @@ function createRenderer(){
     // trueにするとrenderが透明に出来るようになる
     const renderer = new THREE.WebGLRenderer({alpha:true});
     renderer.setSize(width, height);
-    renderer.setClearColor(0xFFFFFF, 0); //0:透明
+    renderer.setClearColor(light_color, 0); //0:透明
     document.body.appendChild(renderer.domElement);
     return renderer;
 }
@@ -170,7 +169,7 @@ function createRenderer(){
 
 function createCube(x, y, wid, id, belong){
     const geometry = new THREE.BoxGeometry(r, r, r);
-    const material = new THREE.MeshPhongMaterial({color: 0xFF8000});
+    const material = new THREE.MeshPhongMaterial({color: cube_default_color});
     const cube = new THREE.Mesh(geometry, material);
     cube.color = 1;
     cube.position.set(x*r+r*wid-centering*r, y*r, 0);
@@ -183,15 +182,15 @@ function createCube(x, y, wid, id, belong){
 
 
 function cubecolorChange(obj){
-    if(obj.color == 0) obj.material.color.setHex(0xBF4040);
-    else obj.material.color.setHex(0xFF8000);
+    if(obj.color == 0) obj.material.color.setHex(cube_mouseon_color);
+    else obj.material.color.setHex(cube_default_color);
 }
 
 
 
 // function cubecoloriGradationChange(obj){
 //     // obj.material.color.setHex(defColor+=9);
-//     defColor = Math.floor(Math.random()*0xFFFFFF);
+//     defColor = Math.floor(Math.random()*light_color);
 //     obj.material.color.setHex(defColor);
 // }
 
@@ -210,8 +209,8 @@ function moving(obj){
     const zxyzxy = "zxyzxy";
     const yzxyzx = "yzxyzx";
 
-    const index = [10,20,30,40,50,60,countermax].filter((i)=>{
-        return movingcounter>i;
+    const index = [10,20,30,40,50,60,counter_max].filter((i)=>{
+        return moving_counter>i;
     }).length;
     let movin;
 
@@ -246,7 +245,7 @@ function update(){
     requestAnimationFrame(update);
     renderer.render(scene, camera);
 
-    movingcounter+=1;
+    moving_counter+=1;
     if(!colapse){
         (cubelist.flat()).forEach((o)=>{ moving(o) });
     }else{
@@ -264,10 +263,10 @@ function update(){
             }
         });
     }
-    if(movingcounter>=countermax){
+    if(moving_counter>=counter_max){
         if(colapse) window.location.href = window.location.href.split("/").pop()=="index.html" ? 
             window.location.href.replace("index.html", `pages/${colapse}.html`): window.location.href + `pages/${colapse}.html`;
-        movingcounter=0;
+        moving_counter=0;
     }
     var projector = new THREE.Projector();
     var mouse = {x:0, y:0};
@@ -291,6 +290,11 @@ function update(){
                     if(o.belong == obj[0].object.belong){
                         o.color=0;
                         cubecolorChange(o);
+                        // if(o.position.z<=10) o.position.z += 1;
+                    }else{
+                        o.color=1;
+                        cubecolorChange(o);
+                        // if(o.position.z>0) o.position.z -= 1;
                     }
                 });
             }else{
@@ -309,12 +313,15 @@ function update(){
                             o.color=1;
                             cubecolorChange(o);
                             colapse = obj[0].object.belong;
-                            movingcounter=60;
+                            moving_counter=100;
                         }
                     });
                 }
             }
         };
+        // if(!colapse){
+        //     (cubelist.flat()).forEach((o)=>{if(o.position.z>0) o.position.z -= 1;})
+        // }
     };
 }
 
