@@ -103,8 +103,10 @@ const Pmob={"P":P,"M":M,"O":O,"B":B};
 
 
 function windSize(){
-    height = window.innerHeight-50;
-    width = window.innerWidth-50;
+    height = document.documentElement.clientHeight-50;
+    width = document.documentElement.clientWidth-50;
+    // height = window.innerHeight-50;
+    // width = window.innerWidth-50;
 }
 
 
@@ -118,7 +120,7 @@ function init(){
     renderer = createRenderer();
     var now_total_wid = 0;
     var total_wid = -2;
-    r = (width+50)/200;
+    r = (width+50)/500;
 
     // 文字横全長
     Object.entries(Pmob).forEach((word)=>{
@@ -263,7 +265,8 @@ function update(){
         });
     }
     if(movingcounter>=countermax){
-        if(colapse) window.location.href = window.location.href + `pages/${colapse}.html`;
+        if(colapse) window.location.href = window.location.href.split("/").pop()=="index.html" ? 
+            window.location.href.replace("index.html", `pages/${colapse}.html`): window.location.href + `pages/${colapse}.html`;
         movingcounter=0;
     }
     var projector = new THREE.Projector();
