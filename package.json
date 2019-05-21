@@ -1,0 +1,29 @@
+{
+  "name": "PMOB.github.io",
+  "version": "1.0.0",
+  "description": "PMOB web site. (https://pmob.github.io)",
+  "main": "index.js",
+  "repository": "https://github.com/PMOB/PMOB.github.io",
+  "author": "PMOB",
+  "scripts": {
+    "watch": "webpack-dev-server --config webpack.config.js",
+    "format": "prettier ./src/**/*",
+    "build:debug": "webpack --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "orbit-controls-es6": "^2.0.0",
+    "three.js": "^0.77.1"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.3",
+    "cross-env": "^5.2.0",
+    "eslint-config-prettier": "^4.3.0",
+    "prettier": "^1.17.1",
+    "webpack": "^4.32.0",
+    "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.4.1",
+    "yarn": "^1.16.0"
+  }
+}
